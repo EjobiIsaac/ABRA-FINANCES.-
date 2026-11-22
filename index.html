@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ABRA FINANCES 🇺🇬 - BIG ENTERPRISE v4.0</title>
+<style>
+:root{--primary:#0d3b2e;--gold:#f9c74f;--green:#2a9d8f;--red:#e76f51}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
+body{background:#eef2f1;padding-bottom:20px}
+.login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#0d3b2e,#2a9d8f);display:flex;align-items:center;justify-content:center;z-index:9999}
+.login-box{background:white;padding:35px;border-radius:16px;width:92%;max-width:380px;text-align:center}
+.input{width:100%;padding:12px 14px;margin:8px 0;border:1.5px solid #ddd;border-radius:8px;font-size:15px}
+.btn{width:100%;padding:13px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer;margin-top:6px}
+.btn-gold{background:var(--gold);color:#000}.btn-red{background:#e76f51;color:#fff}.btn-green{background:#2a9d8f;color:#fff}.btn-small{width:auto;padding:7px 10px;font-size:12px;margin:2px}
+.header{background:var(--primary);color:white;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
+.badge{background:var(--gold);color:#000;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:800}
+.nav{display:flex;gap:6px;padding:10px;background:white;overflow-x:auto;position:sticky;top:54px;z-index:99}
+.nav button{padding:9px 14px;border:none;border-radius:20px;background:#e9ecef;white-space:nowrap;font-weight:600;cursor:pointer}
+.nav button.active{background:var(--primary);color:white}
+.page{display:none;padding:14px}.page.active{display:block}
+.card{background:white;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stat{padding:14px;border-radius:12px;color:white}.stat h3{font-size:20px}
+.kpi1{background:linear-gradient(135deg,#0d3b2e,#2a9d8f)}.kpi2{background:linear-gradient(135deg,#264653,#2a9d8f)}.kpi3{background:linear-gradient(135deg,#f4a261,#e76f51)}.kpi4{background:linear-gradient(135deg,#e76f51,#c1121f)}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:600px}th,td{padding:10px 8px;text-align:left;font-size:12px;border-bottom:1px solid #eee;white-space:nowrap}th{background:#0d3b2e;color:white}
+.client-img{width:38px;height:38px;border-radius:50%;object-fit:cover;background:#ddd}
+.tag{padding:3px 7px;border-radius:10px;font-size:10px;font-weight:700}.tag-paid{background:#d1e7dd;color:#0f5132}.tag-due{background:#fff3cd;color:#664d03}.tag-late{background:#f8d7da;color:#842029}
+.calc{background:#fffbeb;border:1px dashed #f9c74f;border-radius:10px;padding:12px;margin:10px 0;font-size:14px;line-height:1.6}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:1000;padding:16px}
+.modal.show{display:flex}.modal-box{background:#fff;width:100%;max-width:440px;border-radius:14px;padding:18px;max-height:90vh;overflow:auto}
+.receipt{border:1.5px dashed #000;padding:14px;border-radius:8px;font-size:13px;line-height:1.7}
+.flex{display:flex;gap:8px}.flex>*{flex:1}
+@media print{body *{visibility:hidden}.print-area,.print-area *{visibility:visible}.print-area{position:absolute;inset:0;padding:20px}}
+</style>
+</head>
+<body>
+<div id="loginScreen" class="login-screen">
+<div class="login-box">
+<h1>ABRA FINANCES 🇺🇬</h1><small>BIG ENTERPRISE v4.0 - FULL TABLES</small>
+<p style="margin:15px 0 5px;font-weight:700">👤 Staff Login</p>
+<select id="role" class="input"><option value="Manager">👑 Manager</option><option value="Cashier">💵 Cashier</option><option value="Loan Officer">📋 Loan Officer</option></select>
+<input id="pin" class="input" type="password" placeholder="🔒 Enter PIN: 1234">
+<button class="btn" onclick="login()">LOGIN TO ABRA 💰</button>
+<p style="margin-top:12px;font-size:11px;color:#888">Demo PIN: 1234</p>
+<button class="btn btn-gold" onclick="loadDemo()">✨ Load Demo Clients</button>
+</div></div>
+<div id="app" style="display:none">
+<div class="header"><h2>🏦 ABRA FINANCES 🇺🇬 <span class="badge" id="roleBadge">MANAGER</span></h2><div><small id="userTime"></small> <button onclick="logout()" style="margin-left:8px;background:#ffffff22;border:none;color:white;padding:5px 10px;border-radius:6px">🚪 Logout</button></div></div>
+<div class="nav">
+<button class="active" onclick="showPage('dashboard',this)">📊 Dashboard</button>
+<button onclick="showPage('clients',this)">👥 Clients</button>
+<button onclick="showPage('loans',this)">💰 Loans</button>
+<button onclick="showPage('collect',this)">💵 Collect</button>
+<button onclick="showPage('payments',this)">✅ Payments</button>
+<button onclick="showPage('cashbook',this)">📒 Cash Book</button>
+<button onclick="showPage('history',this)">📜 History</button>
+<button onclick="showPage('reports',this)">📈 Reports</button>
+<button onclick="showPage('settings',this)">⚙️ Settings</button>
+</div>
+<div id="dashboard" class="page active">
+<div class="stat-grid">
+<div class="stat kpi1"><p>👥 Total Clients</p><h3 id="kpiClients">0</h3></div>
+<div class="stat kpi2"><p>💰 Active Loans</p><h3 id="kpiLoans">0</h3></div>
+<div class="stat kpi3"><p>💵 Cash Today</p><h3 id="kpiCash">UGX 0</h3></div>
+<div class="stat kpi4"><p>🚨 Defaulters</p><h3 id="kpiDefault">0</h3></div>
+</div>
+<div class="card"><h3>💰 ABRA Big Boss Summary</h3><p style="font-size:13px;margin-top:6px">📤 Lent: <b id="totalLent">UGX 0</b> | ✅ Collected: <b id="totalCollected">UGX 0</b> | 📈 Profit: <b id="totalProfit" style="color:green">UGX 0</b> | ⚠️ Owing: <b id="totalOwing" style="color:red">UGX 0</b></p><button class="btn btn-green" onclick="showProfit()">📈 SHOW MY PROFIT DETAILS</button><button class="btn btn-gold" onclick="exportCSV()">⬇️ EXPORT TO EXCEL</button></div>
+<div class="card"><h3>⚠️ Loans Due / Overdue</h3><div class="table-wrap"><table><thead><tr><th>👤 Client</th><th>📞 Phone</th><th>💰 Lent</th><th>📈 Total</th><th>✅ Paid</th><th>⚠️ Balance</th><th>📅 Due Date</th><th>📌 Status</th><th>📱 Action</th></tr></thead><tbody id="dueTable"></tbody></table></div></div>
+<div class="card"><h3>🕒 Recent Activity - Full Table</h3><div class="table-wrap"><table><thead><tr><th>🕒 Time</th><th>📌 Type</th><th>👤 Client</th><th>📞 Phone</th><th>💳 Method</th><th>💰 Amount</th><th>👤 By</th><th>📝 Note</th></tr></thead><tbody id="recentActivity"></tbody></table></div></div>
+</div><div id="clients" class="page">
+<div class="card">
+<h3>➕ Add New Client (Full KYC)</h3>
+<input id="cName" class="input" placeholder="👤 Full Name *">
+<div class="flex"><input id="cPhone" class="input" placeholder="📞 Phone *"><input id="cIdNo" class="input" placeholder="🪪 NIN / ID No"></div>
+<input id="cLocation" class="input" placeholder="📍 Business Location / Village">
+<input id="cBusiness" class="input" placeholder="🏪 Business Type e.g. Shop, Boda, Salon">
+<input id="cPhoto" class="input" type="file" accept="image/*">
+<div class="flex"><input id="cGuarantor" class="input" placeholder="👨 Guarantor 1 Name"><input id="cGuarantorPhone" class="input" placeholder="📞 Guarantor 1 Phone"></div>
+<div class="flex"><input id="cGuarantor2" class="input" placeholder="👩 Guarantor 2 Name"><input id="cNextKin" class="input" placeholder="👨‍👩‍👦 Next of Kin"></div>
+<input id="cNotes" class="input" placeholder="📝 Notes e.g. Trusted, Pays on time">
+<button class="btn btn-gold" onclick="addClient()">💾 SAVE CLIENT + PHOTO 👤</button>
+</div>
+<div class="card"><h3>👥 Client List - Full Table (All Details)</h3><input id="searchClient" class="input" placeholder="🔍 Search name / phone / location / business / guarantor..." oninput="renderAll()"><div class="table-wrap"><table><thead><tr><th>📸 Photo</th><th>👤 Full Name</th><th>📞 Phone</th><th>🪪 NIN / ID</th><th>📍 Location</th><th>🏪 Business</th><th>👨 Guarantor 1</th><th>📞 Guar. Phone</th><th>👩 Guarantor 2</th><th>👨‍👩‍👦 Next of Kin</th><th>📝 Notes</th><th>💰 Total Borrowed</th><th>✅ Total Paid</th><th>⚠️ Balance</th><th>⚙️ Action</th></tr></thead><tbody id="clientTable"></tbody></table></div></div>
+</div>
+
+<div id="loans" class="page">
+<div class="card">
+<h3>💸 Issue New Loan (Auto Calc)</h3>
+<select id="lClient" class="input"></select>
+<div class="flex"><input id="lAmount" class="input" type="number" placeholder="💰 Loan Amount UGX" oninput="updateCalc()"><input id="lInterest" class="input" type="number" placeholder="📊 Interest %" value="20" oninput="updateCalc()"></div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px"><select id="lPlan" class="input" onchange="updateCalc()"><option>Daily</option><option>Weekly</option><option selected>Monthly</option></select><input id="lDuration" class="input" type="number" placeholder="⏳ Duration" value="3" oninput="updateCalc()"><input id="lPenalty" class="input" type="number" placeholder="🚨 Penalty %" value="5"></div>
+<input id="lCollateral" class="input" placeholder="🏍️ Collateral (e.g Land Title, Boda)">
+<input id="lDate" class="input" type="date">
+<div class="calc" id="calcBox">🧮 Fill amount to see auto calculation</div>
+<button class="btn" onclick="issueLoan()">💸 ISSUE LOAN + PRINT RECEIPT</button>
+</div>
+<div class="card"><h3>📋 Active Loans - Full Table (All Details)</h3><input id="searchLoan" class="input" placeholder="🔍 Search loans by name, phone, collateral, plan..." oninput="renderAll()"><div class="table-wrap"><table><thead><tr><th>🧾 Receipt No</th><th>👤 Client</th><th>📞 Phone</th><th>💰 Lent</th><th>📊 Interest %</th><th>💵 Interest Amt</th><th>📈 Total To Pay</th><th>✅ Paid</th><th>⚠️ Balance</th><th>🔁 Plan</th><th>⏳ Duration</th><th>💵 Installment</th><th>🚨 Penalty %</th><th>🏍️ Collateral</th><th>📅 Date Given</th><th>📅 Due Date</th><th>📌 Status</th><th>⚙️ Action</th></tr></thead><tbody id="loanTable"></tbody></table></div></div>
+</div>
+
+<div id="collect" class="page">
+<div class="card">
+<h3>💵 Collect Payment (Auto Calc - Cannot Overpay)</h3>
+<select id="payLoan" class="input" onchange="updateCollectCalc()"></select>
+<input id="payAmount" class="input" type="number" placeholder="💵 Amount Paid UGX - Max = Balance" oninput="updateCollectCalc()">
+<select id="payMethod" class="input"><option>💵 Cash</option><option>📱 MTN MoMo</option><option>📱 Airtel Money</option><option>🏦 Bank</option></select>
+<div class="calc" id="collectCalc">🧮 Select loan to see balance calculation</div>
+<button class="btn btn-gold" onclick="collectPayment()">✅ COLLECT & SHOW RECEIPT 🖨️</button>
+<p style="font-size:12px;color:#888;margin-top:8px">🚫 System will BLOCK you if you try to collect more than the client owes.</p>
+</div>
+</div>
+
+<div id="payments" class="page">
+<div class="card"><h3>✅ Payment List - Those Who Have Made Payments (Full Table)</h3><input id="searchPayments" class="input" placeholder="🔍 Search payments by name, phone, method, amount..." oninput="renderAll()"><div class="table-wrap"><table><thead><tr><th>🕒 Date / Time</th><th>👤 Client</th><th>📞 Phone</th><th>🧾 Loan Receipt</th><th>💰 Loan Total</th><th>💵 Paid Now</th><th>✅ Total Paid (All Time)</th><th>⚠️ Balance After Payment</th><th>💳 Method</th><th>👤 Collected By</th><th>📝 Note</th><th>📌 Status</th></tr></thead><tbody id="paymentTable"></tbody></table></div><p style="margin-top:10px">✅ Total Payments Collected: <b id="totalPaymentsCount" style="color:green">0 payments</b> | 💰 Total Amount: <b id="totalPaymentsAmt" style="color:green">UGX 0</b></p><button class="btn btn-gold" onclick="exportCSV()">⬇️ Export Payments to Excel</button></div>
+</div><div id="cashbook" class="page">
+<div class="card"><h3>📒 Daily Cash Book - Full Table (All Details)</h3><input id="searchCash" class="input" placeholder="🔍 Search cashbook by name, type, method, amount..." oninput="renderAll()"><div class="table-wrap"><table><thead><tr><th>🕒 Date / Time</th><th>📌 Type</th><th>👤 Client</th><th>📞 Phone</th><th>🧾 Loan Receipt</th><th>💳 Method</th><th>💰 Amount</th><th>👤 By (Staff)</th><th>📝 Note / Details</th><th>📌 Status</th></tr></thead><tbody id="cashTable"></tbody></table></div><p style="margin-top:10px">💰 Balance: <b id="cashBalance">UGX 0</b> | 📥 In: <b id="cashIn" style="color:green">UGX 0</b> | 📤 Out: <b id="cashOut" style="color:red">UGX 0</b></p><button class="btn" onclick="window.print()">🖨️ Print Cash Book</button><button class="btn btn-gold" onclick="exportCSV()">⬇️ Export Cashbook to Excel</button></div>
+</div>
+
+<div id="history" class="page">
+<div class="card"><h3>📜 Full History - Full Table (All Details)</h3><input id="searchHistory" class="input" placeholder="🔍 Search by name, phone, amount, date, type, method..." oninput="renderAll()"><div class="flex"><select id="filterType" class="input" onchange="renderAll()"><option value="">📌 All Types</option><option value="OUT">📤 Loans Given</option><option value="IN">💵 Collections</option></select><select id="filterMethod" class="input" onchange="renderAll()"><option value="">💳 All Methods</option><option>Cash</option><option>MTN MoMo</option><option>Airtel Money</option><option>Bank</option></select></div><div class="table-wrap"><table><thead><tr><th>🕒 Date / Time</th><th>📌 Type</th><th>👤 Client</th><th>📞 Phone</th><th>🧾 Loan Receipt</th><th>💳 Method</th><th>💰 Amount</th><th>👤 By (Staff)</th><th>📝 Note / Details</th><th>📌 Status</th></tr></thead><tbody id="historyTable"></tbody></table></div><button class="btn btn-gold" onclick="exportCSV()">⬇️ Export History to Excel (CSV)</button></div>
+</div>
+
+<div id="reports" class="page">
+<div class="card"><h3>📈 Manager Reports</h3>
+<div class="flex"><button class="btn" onclick="setReport('today')">📅 Today</button><button class="btn btn-gold" onclick="setReport('week')">📅 Week</button><button class="btn btn-green" onclick="setReport('month')">📅 Month</button><button class="btn" onclick="setReport('all')">📅 All</button></div>
+<div class="calc" id="reportBox" style="margin-top:12px">Select period</div>
+<div class="card" style="background:#f8f9fa"><h4>🏆 Top Clients (Most Borrowed)</h4><div id="topClients" style="font-size:13px"></div></div>
+<button class="btn" onclick="exportCSV()">⬇️ Export All Data to Excel (CSV)</button>
+<button class="btn" onclick="printReport()">🖨️ Print Full Report</button>
+<button class="btn btn-red" onclick="clearAll()">🧹 Clear All Data (Manager Only)</button>
+</div>
+</div>
+
+<div id="settings" class="page">
+<div class="card"><h3>⚙️ Business Settings</h3>
+<label>🏦 Business Name</label><input id="sBizName" class="input" placeholder="🏦 e.g. ABRA FINANCES">
+<label>📞 TEL Number</label><input id="sPhone" class="input" placeholder="📞 e.g. 0770 123456">
+<label>📍 Business Location</label><input id="sLocation" class="input" placeholder="📍 e.g. Kampala, Owino">
+<label>📊 Interest Rate %</label><input id="sRate" class="input" type="number" placeholder="📊 e.g. 20">
+<label>🚨 Late Penalty %</label><input id="sPenalty" class="input" type="number" placeholder="🚨 e.g. 5">
+<label>🧾 Receipt Footer Message</label><input id="sFooter" class="input" placeholder="🧾 e.g. Thank you, pay on time!">
+<label>🔒 Change PIN</label><input id="sPin" class="input" placeholder="🔒 Leave blank to keep 1234">
+<button class="btn" onclick="saveSettings()">💾 SAVE SETTINGS</button>
+<button class="btn btn-gold" onclick="backupData()">⬇️ Backup All Data (JSON)</button>
+<button class="btn btn-red" onclick="loadDemo()">✨ Reload Demo Data</button>
+</div>
+</div>
+</div>
+
+<div id="receiptModal" class="modal"><div class="modal-box"><div class="print-area"><div class="receipt" id="receiptContent"></div></div><button class="btn" onclick="window.print()">🖨️ PRINT RECEIPT</button><button class="btn btn-gold" onclick="shareWhatsAppReceipt()">📱 Send Receipt via WhatsApp</button><button class="btn btn-red" onclick="closeReceipt()">❌ Close</button></div></div>
+<div id="profileModal" class="modal"><div class="modal-box"><div id="profileContent"></div><button class="btn btn-red" onclick="closeProfile()">❌ Close</button></div></div><script>
+let clients=JSON.parse(localStorage.getItem('abra_clients')||'[]');
+let loans=JSON.parse(localStorage.getItem('abra_loans')||'[]');
+let cash=JSON.parse(localStorage.getItem('abra_cash')||'[]');
+let settings=JSON.parse(localStorage.getItem('abra_settings')||'{"bizName":"ABRA FINANCES 🇺🇬","phone":"0770 000 000","location":"Kampala, Uganda","rate":20,"penalty":5,"footer":"Thank you for choosing ABRA FINANCES - Pay on time, borrow more!","pin":"1234"}');
+let currentRole='Manager'; let lastReceipt=null; let reportPeriod='all';
+function fmt(n){return 'UGX '+Number(n||0).toLocaleString()}
+function getPhone(name){let c=clients.find(x=>x.name===name);return c?c.phone:'-'}
+function getClientByName(name){return clients.find(x=>x.name===name)}
+function saveAll(){localStorage.setItem('abra_clients',JSON.stringify(clients));localStorage.setItem('abra_loans',JSON.stringify(loans));localStorage.setItem('abra_cash',JSON.stringify(cash));localStorage.setItem('abra_settings',JSON.stringify(settings))}
+function login(){if(document.getElementById('pin').value!==settings.pin){alert('❌ Wrong PIN! Try '+settings.pin);return}currentRole=document.getElementById('role').value;document.getElementById('loginScreen').style.display='none';document.getElementById('app').style.display='block';document.getElementById('roleBadge').innerText=currentRole.toUpperCase();document.getElementById('lInterest').value=settings.rate;document.getElementById('lPenalty').value=settings.penalty;renderAll();setInterval(()=>{document.getElementById('userTime').innerText=new Date().toLocaleTimeString()},1000)}
+function logout(){location.reload()}
+function showPage(id,btn){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active')}
+function loadDemo(){clients=[{id:1,name:'John Kato',phone:'0770111222',idNo:'CM123456',location:'Owino Market',business:'Shop',guarantor:'Mary Kato',gPhone:'0700111222',guarantor2:'Peter Kato',nextKin:'Mary Kato',notes:'Trusted',photo:''},{id:2,name:'Sarah Nakato',phone:'0700333444',idNo:'CF789012',location:'Kampala Road',business:'Salon',guarantor:'Peter',gPhone:'0770333444',guarantor2:'Grace',nextKin:'Peter',notes:'Pays on time',photo:''},{id:3,name:'David Ssemwanga',phone:'0780555666',idNo:'CM345678',location:'Nakawa',business:'Boda Boda',guarantor:'James',gPhone:'0780111222',guarantor2:'Paul',nextKin:'James',notes:'Late last time',photo:''}];loans=[{id:101,clientId:1,clientName:'John Kato',principal:500000,interest:20,total:600000,paid:200000,balance:400000,plan:'Monthly',duration:3,penalty:5,collateral:'Boda',date:new Date().toLocaleDateString(),dueDate:'2026-12-10',receiptNo:'ABRA-101'},{id:102,clientId:2,clientName:'Sarah Nakato',principal:1000000,interest:20,total:1200000,paid:1200000,balance:0,plan:'Monthly',duration:3,penalty:5,collateral:'Land Title',date:'2026-10-15',dueDate:'2026-11-15',receiptNo:'ABRA-102'},{id:103,clientId:3,clientName:'David Ssemwanga',principal:300000,interest:20,total:360000,paid:0,balance:360000,plan:'Weekly',duration:2,penalty:5,collateral:'Phone',date:'2026-10-01',dueDate:'2026-11-01',receiptNo:'ABRA-103'}];cash=[{time:new Date().toLocaleString(),type:'OUT - Loan',client:'John Kato',method:'Cash',amount:-500000,by:'Manager',note:'Loan given',loanId:101},{time:new Date().toLocaleString(),type:'IN - Collection',client:'John Kato',method:'Cash',amount:200000,by:'Manager',note:'Partial',loanId:101},{time:new Date().toLocaleString(),type:'IN - Collection',client:'Sarah Nakato',method:'MTN MoMo',amount:1200000,by:'Manager',note:'Full payment',loanId:102}];saveAll();renderAll();alert('✅ Demo Loaded: John, Sarah, David')}
+function addClient(){let name=document.getElementById('cName').value.trim();if(!name){alert('⚠️ Enter name');return}let file=document.getElementById('cPhoto').files[0];const save=(img)=>{clients.unshift({id:Date.now(),name,phone:document.getElementById('cPhone').value,idNo:document.getElementById('cIdNo').value,location:document.getElementById('cLocation').value,business:document.getElementById('cBusiness').value,guarantor:document.getElementById('cGuarantor').value,gPhone:document.getElementById('cGuarantorPhone').value,guarantor2:document.getElementById('cGuarantor2').value,nextKin:document.getElementById('cNextKin').value,notes:document.getElementById('cNotes').value,photo:img||''});saveAll();['cName','cPhone','cIdNo','cLocation','cBusiness','cGuarantor','cGuarantorPhone','cGuarantor2','cNextKin','cNotes'].forEach(id=>document.getElementById(id).value='');renderAll();alert('✅ Client saved! '+name)};if(file){let r=new FileReader();r.onload=e=>save(e.target.result);r.readAsDataURL(file);}else save('')}
+function deleteClient(id){let c=clients.find(x=>x.id==id);if(!c)return;if(!confirm(`🗑️ Delete ${c.name}?\nThis will also delete their loans. Are you sure?`))return;clients=clients.filter(x=>x.id!=id);loans=loans.filter(l=>l.clientId!=id);saveAll();renderAll();alert('✅ Deleted '+c.name)}
+function updateCalc(){let amt=parseFloat(document.getElementById('lAmount').value)||0;let intr=parseFloat(document.getElementById('lInterest').value)||settings.rate;let plan=document.getElementById('lPlan').value;let dur=parseInt(document.getElementById('lDuration').value)||1;let interestAmt=amt*intr/100;let total=amt+interestAmt;let per=total;if(plan==='Monthly')per=total/dur;if(plan==='Weekly')per=total/(dur*4);if(plan==='Daily')per=total/(dur*30);let d=new Date(document.getElementById('lDate').value||Date.now());d.setMonth(d.getMonth()+dur);document.getElementById('calcBox').innerHTML=`🧮 <b>Principal:</b> ${fmt(amt)} | <b>Interest (${intr}%):</b> ${fmt(interestAmt)}<br>💰 <b>Total to Pay:</b> ${fmt(total)} | 🔁 <b>Installment (${plan}):</b> ${fmt(Math.round(per))}<br>📅 <b>Due Date:</b> ${d.toDateString()} | ✅ <b>Profit:</b> ${fmt(interestAmt)}`;return {interestAmt,total,per,due:d}}
+function issueLoan(){let cId=document.getElementById('lClient').value;let amt=parseFloat(document.getElementById('lAmount').value);if(!cId||!amt){alert('⚠️ Select client & amount');return}let client=clients.find(c=>c.id==cId);let c=updateCalc();let loan={id:Date.now(),clientId:cId,clientName:client.name,principal:amt,interest:parseFloat(document.getElementById('lInterest').value)||settings.rate,total:c.total,paid:0,balance:c.total,plan:document.getElementById('lPlan').value,duration:parseInt(document.getElementById('lDuration').value)||1,penalty:document.getElementById('lPenalty').value,collateral:document.getElementById('lCollateral').value,date:new Date().toLocaleDateString(),dueDate:c.due.toLocaleDateString(),receiptNo:'ABRA-'+Date.now().toString().slice(-6)};loans.unshift(loan);cash.unshift({time:new Date().toLocaleString(),type:'OUT - Loan',client:client.name,method:'Cash',amount:-amt,by:currentRole,note:`Loan ${fmt(amt)} Total ${fmt(c.total)} Due ${loan.dueDate}`,loanId:loan.id});saveAll();renderAll();showReceipt('LOAN GIVEN',loan,amt,client);document.getElementById('lAmount').value=''}
+function updateCollectCalc(){let lId=document.getElementById('payLoan').value;let loan=loans.find(l=>l.id==lId);if(!loan){document.getElementById('collectCalc').innerHTML='🧮 Select loan';return}let amt=parseFloat(document.getElementById('payAmount').value)||0;let after=Math.max(0,loan.balance-amt);let pen=0;if(new Date()>new Date(loan.dueDate)&&loan.balance>0)pen=loan.balance*(parseFloat(loan.penalty)||5)/100;let warn=amt>loan.balance?`<br><b style="color:red">🚫 TOO MUCH! Max you can collect is ${fmt(loan.balance)}</b>`:'';document.getElementById('collectCalc').innerHTML=`👤 <b>${loan.clientName}</b> | 📈 Total: ${fmt(loan.total)}<br>✅ Paid Before: ${fmt(loan.paid)} | ⚠️ Balance Before: ${fmt(loan.balance)}<br>💵 Paying Now: ${fmt(amt)} | 🚨 Penalty: ${fmt(pen)}<br>🧾 <b>Balance After:</b> ${fmt(after+pen)} | ${after<=0?'🎉 LOAN CLEARED!':'📌 Still Owing'}${warn}`}
+function collectPayment(){let lId=document.getElementById('payLoan').value;let amt=parseFloat(document.getElementById('payAmount').value);if(!lId||!amt){alert('⚠️ Select loan & amount');return}let loan=loans.find(l=>l.id==lId);if(amt>loan.balance){alert('🚫 STOP! '+loan.clientName+' only owes '+fmt(loan.balance)+'\nYou tried to collect '+fmt(amt)+'\n\nPlease collect '+fmt(loan.balance)+' or less.');document.getElementById('payAmount').value=loan.balance;updateCollectCalc();return}let before=loan.balance;loan.paid+=amt;loan.balance=Math.max(0,loan.total-loan.paid);let method=document.getElementById('payMethod').value;let client=clients.find(c=>c.id==loan.clientId);cash.unshift({time:new Date().toLocaleString(),type:'IN - Collection',client:loan.clientName,method,amount:amt,by:currentRole,note:`Paid ${fmt(amt)} Balance ${fmt(loan.balance)}`,loanId:loan.id});saveAll();renderAll();showReceipt('PAYMENT RECEIVED',loan,amt,client,before);document.getElementById('payAmount').value='';if(loan.balance===0){alert('🎉 LOAN CLEARED! '+loan.clientName+' has finished paying!')}}
+function showProfit(){let totalLent=loans.reduce((s,l)=>s+l.principal,0);let totalCol=cash.filter(c=>c.amount>0).reduce((s,c)=>s+c.amount,0);let expectedProfit=loans.reduce((s,l)=>s+(l.total-l.principal),0);let realProfit=Math.max(0,totalCol-totalLent);let stillExpected=loans.reduce((s,l)=>s+l.balance,0);alert(`📈 ABRA PROFIT REPORT 🇺🇬\n\n📤 Total Lent: ${fmt(totalLent)}\n✅ Total Collected: ${fmt(totalCol)}\n\n💰 PROFIT SO FAR: ${fmt(realProfit)}\n📊 Expected Total Profit (if all pay): ${fmt(expectedProfit)}\n⚠️ Still To Collect: ${fmt(stillExpected)}\n\nKeep pushing, Boss! 💪`)}function showReceipt(type,loan,amt,client,before){let receiptNo='ABRA-'+Date.now().toString().slice(-6);let html=`<h3 style="text-align:center">🏦 ${settings.bizName}</h3><p style="text-align:center;font-size:11px">📍 ${settings.location} | 📞 ${settings.phone}</p><hr><p style="text-align:center"><b>🧾 ${type}</b><br>Receipt No: ${receiptNo}<br>Date: ${new Date().toLocaleString()}</p><hr>👤 <b>Client:</b> ${loan.clientName}<br>📞 Phone: ${client?client.phone:'-'}<br>🪪 NIN: ${client?client.idNo:'-'}<br>📍 Location: ${client?client.location:'-'}<br>🏍️ Collateral: ${loan.collateral||'-'}<br><hr>💰 <b>Loan:</b> ${fmt(loan.principal)}<br>📊 Interest (${loan.interest}%): ${fmt(loan.total-loan.principal)}<br>📈 <b>Total:</b> ${fmt(loan.total)}<br>${type==='PAYMENT RECEIVED'?`💵 <b>Paid Now:</b> ${fmt(amt)}<br>✅ Paid Before: ${fmt(loan.paid-amt)}<br>⚠️ Balance Before: ${fmt(before)}<br>🧾 <b>Balance After: ${fmt(loan.balance)}</b><br>💳 Method: ${document.getElementById('payMethod').value}<br>`:`💵 <b>Given Now:</b> ${fmt(amt)}<br>🔁 Installment: ${fmt(Math.round(loan.total/(loan.plan==='Monthly'?loan.duration:loan.plan==='Weekly'?loan.duration*4:loan.duration*30)))} ${loan.plan}<br>📅 Due: ${loan.dueDate}<br>`}<hr>👤 Served By: ${currentRole}<br>✍️ Client Signature: ___________<br>✍️ Staff Signature: ___________<br><p style="text-align:center;font-size:11px">${settings.footer}</p>`;document.getElementById('receiptContent').innerHTML=html;document.getElementById('receiptModal').classList.add('show');lastReceipt={type,loan,amt,client,receiptNo}}
+function closeReceipt(){document.getElementById('receiptModal').classList.remove('show')}
+function shareWhatsAppReceipt(){if(!lastReceipt)return;let phone=(lastReceipt.client?.phone||'').replace(/\D/g,'');if(phone.startsWith('0'))phone='256'+phone.slice(1);let msg=`Hello ${lastReceipt.loan.clientName}, this is ${settings.bizName} 🇺🇬\n🧾 ${lastReceipt.type}\nReceipt: ${lastReceipt.receiptNo}\nAmount: ${fmt(lastReceipt.amt)}\nBalance: ${fmt(lastReceipt.loan.balance)}\nDue: ${lastReceipt.loan.dueDate}\nThank you!`;window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`,'_blank')}
+function whatsappReminder(clientId,loanId){let client=clients.find(c=>c.id==clientId);let loan=loans.find(l=>l.id==loanId)||loans.find(l=>l.clientId==clientId);let phone=(client.phone||'').replace(/\D/g,'');if(phone.startsWith('0'))phone='256'+phone.slice(1);let msg=`Hello ${client.name} 👋, this is ${settings.bizName} 🇺🇬\n📌 Reminder: Your loan balance is ${loan?fmt(loan.balance):'pending'}.\n📈 Total: ${loan?fmt(loan.total):''}\n📅 Due: ${loan?loan.dueDate:''}\nPlease pay on time to avoid penalty. Thank you! 🙏\n📞 ${settings.phone}`;window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`,'_blank')}
+function viewProfile(id){let c=clients.find(x=>x.id==id);let cls=loans.filter(l=>l.clientId==id);let tb=cls.reduce((s,l)=>s+l.principal,0);let tp=cls.reduce((s,l)=>s+l.paid,0);let tbal=cls.reduce((s,l)=>s+l.balance,0);document.getElementById('profileContent').innerHTML=`<div style="text-align:center">${c.photo?`<img src="${c.photo}" style="width:80px;height:80px;border-radius:50%;object-fit:cover">`:'<div style="font-size:60px">👤</div>'}<h3>👤 ${c.name}</h3><p>📞 ${c.phone} | 🪪 ${c.idNo||'-'}</p></div><hr><p>📍 <b>Location:</b> ${c.location||'-'}<br>🏪 <b>Business:</b> ${c.business||'-'}<br>👨 <b>Guarantor 1:</b> ${c.guarantor||'-'} (${c.gPhone||'-'})<br>👩 <b>Guarantor 2:</b> ${c.guarantor2||'-'}<br>👨‍👩‍👦 <b>Next of Kin:</b> ${c.nextKin||'-'}<br>📝 <b>Notes:</b> ${c.notes||'-'}</p><hr><p>💰 <b>Borrowed:</b> ${fmt(tb)}<br>✅ <b>Paid:</b> ${fmt(tp)}<br>⚠️ <b>Balance:</b> ${fmt(tbal)}<br>📋 <b>Loans:</b> ${cls.length}</p><button class="btn btn-green" onclick="whatsappReminder(${c.id})">📱 WhatsApp Reminder</button>`;document.getElementById('profileModal').classList.add('show')}
+function closeProfile(){document.getElementById('profileModal').classList.remove('show')}
+function saveSettings(){settings.bizName=document.getElementById('sBizName').value||settings.bizName;settings.phone=document.getElementById('sPhone').value||settings.phone;settings.location=document.getElementById('sLocation').value||settings.location;settings.rate=parseFloat(document.getElementById('sRate').value)||settings.rate;settings.penalty=parseFloat(document.getElementById('sPenalty').value)||settings.penalty;settings.footer=document.getElementById('sFooter').value||settings.footer;let np=document.getElementById('sPin').value;if(np)settings.pin=np;saveAll();alert('✅ Settings Saved! '+settings.bizName)}
+function backupData(){let blob=new Blob([JSON.stringify({clients,loans,cash,settings})],{type:'application/json'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ABRA_BACKUP.json';a.click()}
+function setReport(p){reportPeriod=p;renderAll()}
+function printReport(){window.print()}
+function exportCSV(){if(cash.length===0){alert('⚠️ No data to export yet. Add a client and loan first.');return}let csv='ABRA FINANCES - EXPORT\nType,Client,Phone,Amount,Method,By,Time,Note,LoanId\n';cash.forEach(c=>{csv+=`"${c.type}","${c.client}","${getPhone(c.client)}",${c.amount},"${c.method}","${c.by}","${c.time}","${(c.note||'').replace(/"/g,'')}","${c.loanId||''}"\n`});let blob=new Blob([csv],{type:'text/csv;charset=utf-8'});let url=URL.createObjectURL(blob);let a=document.createElement('a');a.href=url;a.download='ABRA_FINANCES_Report.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(()=>URL.revokeObjectURL(url),1000);alert('✅ Excel File Downloaded!\nCheck Downloads: ABRA_FINANCES_Report.csv\nOpen with Excel / Google Sheets.')}
+function clearAll(){if(currentRole!=='Manager'){alert('❌ Only Manager can clear!');return}if(confirm('🧹 Delete ALL ABRA data?')){localStorage.clear();clients=[];loans=[];cash=[];renderAll()}}
+function renderAll(){
+document.getElementById('kpiClients').innerText=clients.length;document.getElementById('kpiLoans').innerText=loans.filter(l=>l.balance>0).length;
+let today=new Date().toDateString();let todayCash=cash.filter(c=>c.amount>0&&new Date(c.time).toDateString()===today).reduce((s,c)=>s+c.amount,0);document.getElementById('kpiCash').innerText=fmt(todayCash);document.getElementById('kpiDefault').innerText=loans.filter(l=>l.balance>0&&l.paid/l.total<0.5).length;
+let totalLent=loans.reduce((s,l)=>s+l.principal,0);let totalCol=cash.filter(c=>c.amount>0).reduce((s,c)=>s+c.amount,0);let totalOwing=loans.reduce((s,l)=>s+l.balance,0);
+document.getElementById('totalLent').innerText=fmt(totalLent);document.getElementById('totalCollected').innerText=fmt(totalCol);document.getElementById('totalProfit').innerText=fmt(Math.max(0,totalCol-totalLent));document.getElementById('totalOwing').innerText=fmt(totalOwing);
+let qc=(document.getElementById('searchClient')?.value||'').toLowerCase();
+document.getElementById('clientTable').innerHTML=clients.filter(c=>(c.name+' '+c.phone+' '+c.location+' '+c.business+' '+c.guarantor).toLowerCase().includes(qc)).map(c=>{let cls=loans.filter(l=>l.clientId==c.id);let tb=cls.reduce((s,l)=>s+l.principal,0);let tp=cls.reduce((s,l)=>s+l.paid,0);let tbal=cls.reduce((s,l)=>s+l.balance,0);return `<tr><td>${c.photo?`<img src="${c.photo}" class="client-img">`:'👤'}</td><td><b>${c.name}</b></td><td>${c.phone||'-'}</td><td>${c.idNo||'-'}</td><td>${c.location||'-'}</td><td>${c.business||'-'}</td><td>${c.guarantor||'-'}</td><td>${c.gPhone||'-'}</td><td>${c.guarantor2||'-'}</td><td>${c.nextKin||'-'}</td><td>${c.notes||'-'}</td><td>${fmt(tb)}</td><td style="color:green">${fmt(tp)}</td><td style="color:red">${fmt(tbal)}</td><td><button class="btn btn-small" onclick="viewProfile(${c.id})">👁️ View</button><button class="btn btn-small btn-green" onclick="whatsappReminder(${c.id})">📱 WhatsApp</button><button class="btn btn-small btn-red" onclick="deleteClient(${c.id})">🗑️ Delete</button></td></tr>`}).join('')||'<tr><td colspan=15>No clients - Tap ✨ Load Demo</td></tr>';
+document.getElementById('lClient').innerHTML='<option value="">👤 Select Client</option>'+clients.map(c=>`<option value="${c.id}">${c.name} - ${c.phone}</option>`).join('');
+let ql=(document.getElementById('searchLoan')?.value||'').toLowerCase();
+document.getElementById('loanTable').innerHTML=loans.filter(l=>(l.clientName+' '+getPhone(l.clientName)+' '+l.collateral+' '+l.plan).toLowerCase().includes(ql)).map(l=>{let inst=Math.round(l.total/(l.plan==='Monthly'?l.duration:l.plan==='Weekly'?l.duration*4:l.duration*30));let st=l.balance==0?'✅ PAID':l.paid>0?'🟡 PARTIAL':'🔴 NOT PAID';return `<tr><td>${l.receiptNo||'-'}</td><td><b>${l.clientName}</b></td><td>${getPhone(l.clientName)}</td><td>${fmt(l.principal)}</td><td>${l.interest}%</td><td>${fmt(l.total-l.principal)}</td><td>${fmt(l.total)}</td><td style="color:green">${fmt(l.paid)}</td><td style="color:red">${fmt(l.balance)}</td><td>${l.plan}</td><td>${l.duration}</td><td>${fmt(inst)}</td><td>${l.penalty}%</td><td>${l.collateral||'-'}</td><td>${l.date}</td><td>${l.dueDate}</td><td><span class="tag ${l.balance==0?'tag-paid':l.paid>0?'tag-due':'tag-late'}">${st}</span></td><td><button class="btn btn-small btn-green" onclick="whatsappReminder(${l.clientId},${l.id})">📱 Remind</button></td></tr>`}).join('')||'<tr><td colspan=18>No loans</td></tr>';
+document.getElementById('payLoan').innerHTML='<option value="">💰 Select Loan to Collect</option>'+loans.filter(l=>l.balance>0).map(l=>`<option value="${l.id}">${l.clientName} - Bal ${fmt(l.balance)} - Due ${l.dueDate}</option>`).join('');
+let qp=(document.getElementById('searchPayments')?.value||'').toLowerCase();let pays=cash.filter(c=>c.amount>0&&(c.client+' '+getPhone(c.client)+' '+c.method).toLowerCase().includes(qp));
+document.getElementById('paymentTable').innerHTML=pays.slice().reverse().map(c=>{let ln=loans.find(l=>l.id==c.loanId);let tot=ln?ln.total:0;let totPaid=ln?ln.paid:0;let bal=ln?ln.balance:0;let st=bal==0?'✅ CLEARED':'🟡 PARTIAL';return `<tr><td>${c.time}</td><td><b>${c.client}</b></td><td>${getPhone(c.client)}</td><td>${ln?ln.receiptNo:c.loanId||'-'}</td><td>${fmt(tot)}</td><td style="color:green"><b>${fmt(c.amount)}</b></td><td>${fmt(totPaid)}</td><td style="color:${bal==0?'green':'red'}">${fmt(bal)}</td><td>${c.method}</td><td>${c.by}</td><td>${c.note||''}</td><td><span class="tag ${bal==0?'tag-paid':'tag-due'}">${st}</span></td></tr>`}).join('')||'<tr><td colspan=12>No payments yet - Collect a payment to see it here</td></tr>';
+document.getElementById('totalPaymentsCount').innerText=pays.length+' payments';document.getElementById('totalPaymentsAmt').innerText=fmt(pays.reduce((s,c)=>s+c.amount,0));
+let qcash=(document.getElementById('searchCash')?.value||'').toLowerCase();let fc=cash.filter(c=>(c.client+' '+getPhone(c.client)+' '+c.type+' '+c.method).toLowerCase().includes(qcash));
+document.getElementById('cashTable').innerHTML=fc.slice(-100).reverse().map(c=>{let ln=loans.find(l=>l.id==c.loanId);let st=c.amount>0?'✅ IN':'📤 OUT';return `<tr><td>${c.time}</td><td><span class="tag ${c.amount>0?'tag-paid':'tag-late'}">${c.type}</span></td><td><b>${c.client}</b></td><td>${getPhone(c.client)}</td><td>${ln?ln.receiptNo:c.loanId||'-'}</td><td>${c.method}</td><td style="color:${c.amount>0?'green':'red'}">${fmt(c.amount)}</td><td>${c.by}</td><td>${c.note||''}</td><td>${st}</td></tr>`}).join('')||'<tr><td colspan=10>No cash records</td></tr>';
+document.getElementById('cashBalance').innerText=fmt(cash.reduce((s,c)=>s+c.amount,0));document.getElementById('cashIn').innerText=fmt(cash.filter(c=>c.amount>0).reduce((s,c)=>s+c.amount,0));document.getElementById('cashOut').innerText=fmt(Math.abs(cash.filter(c=>c.amount<0).reduce((s,c)=>s+c.amount,0)));
+let qh=(document.getElementById('searchHistory')?.value||'').toLowerCase();let ft=document.getElementById('filterType')?.value||'';let fm=document.getElementById('filterMethod')?.value||'';
+document.getElementById('historyTable').innerHTML=cash.filter(c=>{let ok=(c.client+' '+getPhone(c.client)+' '+c.type+' '+c.method+' '+c.amount+' '+c.time).toLowerCase().includes(qh);if(ft&&!c.type.includes(ft))ok=false;if(fm&&c.method!==fm)ok=false;return ok}).slice(-200).reverse().map(c=>{let ln=loans.find(l=>l.id==c.loanId);let st=c.amount>0?'✅ IN':'📤 OUT';return `<tr><td>${c.time}</td><td>${c.type}</td><td><b>${c.client}</b></td><td>${getPhone(c.client)}</td><td>${ln?ln.receiptNo:c.loanId||'-'}</td><td>${c.method}</td><td style="color:${c.amount>0?'green':'red'}">${fmt(c.amount)}</td><td>${c.by}</td><td>${c.note||''}</td><td>${st}</td></tr>`}).join('')||'<tr><td colspan=10>No history</td></tr>';
+document.getElementById('dueTable').innerHTML=loans.filter(l=>l.balance>0).slice(0,10).map(l=>`<tr><td><b>${l.clientName}</b></td><td>${getPhone(l.clientName)}</td><td>${fmt(l.principal)}</td><td>${fmt(l.total)}</td><td style="color:green">${fmt(l.paid)}</td><td style="color:red">${fmt(l.balance)}</td><td>${l.dueDate}</td><td><span class="tag ${l.paid==0?'tag-late':'tag-due'}">${l.paid==0?'🔴 NOT PAID':'🟡 PARTIAL'}</span></td><td><button class="btn btn-small btn-green" onclick="whatsappReminder(${l.clientId},${l.id})">📱 Remind</button></td></tr>`).join('')||'<tr><td colspan=9>No due loans</td></tr>';
+document.getElementById('recentActivity').innerHTML=cash.slice(-10).reverse().map(c=>`<tr><td>${c.time}</td><td><span class="tag ${c.amount>0?'tag-paid':'tag-late'}">${c.type}</span></td><td><b>${c.client}</b></td><td>${getPhone(c.client)}</td><td>${c.method}</td><td style="color:${c.amount>0?'green':'red'}">${fmt(c.amount)}</td><td>${c.by}</td><td>${c.note||''}</td></tr>`).join('')||'<tr><td colspan=8>No activity yet</td></tr>';
+let filtered=cash;let now=new Date();if(reportPeriod==='today')filtered=cash.filter(c=>new Date(c.time).toDateString()===now.toDateString());if(reportPeriod==='week')filtered=cash.filter(c=>{let d=new Date(c.time);return (now-d)/(1000*60*60*24)<=7});if(reportPeriod==='month')filtered=cash.filter(c=>{let d=new Date(c.time);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear()});
+let repIn=filtered.filter(c=>c.amount>0).reduce((s,c)=>s+c.amount,0);let repOut=Math.abs(filtered.filter(c=>c.amount<0).reduce((s,c)=>s+c.amount,0));
+document.getElementById('reportBox').innerHTML=`📅 <b>Period:</b> ${reportPeriod.toUpperCase()}<br>📥 <b>Collected:</b> ${fmt(repIn)} | 📤 <b>Lent:</b> ${fmt(repOut)}<br>💰 <b>Net:</b> ${fmt(repIn-repOut)} | 👥 <b>Transactions:</b> ${filtered.length} | ⚠️ <b>Still Owing:</b> ${fmt(totalOwing)}`;
+let top={};loans.forEach(l=>{top[l.clientName]=(top[l.clientName]||0)+l.principal});document.getElementById('topClients').innerHTML=Object.entries(top).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([n,a],i)=>`${i+1}. 👤 ${n} - ${fmt(a)}`).join('<br>')||'No data';
+document.getElementById('sBizName').value=settings.bizName;document.getElementById('sPhone').value=settings.phone;document.getElementById('sLocation').value=settings.location;document.getElementById('sRate').value=settings.rate;document.getElementById('sPenalty').value=settings.penalty;document.getElementById('sFooter').value=settings.footer;
+document.getElementById('lDate').value=new Date().toISOString().slice(0,10);updateCalc();updateCollectCalc();
+}
+document.getElementById('lDate').value=new Date().toISOString().slice(0,10);
+renderAll();
+</script>
+</body>
+</html>
