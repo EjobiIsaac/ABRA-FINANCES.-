@@ -1,0 +1,39 @@
+name: Build ABRA EXE - Release
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install tools
+        run: pip install -r requirements.txt
+
+      - name: Build ABRA.exe
+        env:
+          SAVVY_SECRET: ${{ secrets.SAVVY_SECRET }}
+        run: pyinstaller --noconfirm --onefile --windowed --name ABRA --add-data "abra_ui.html;." main.py
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v4.1-${{ github.run_number }}
+          name: ABRA FINANCES v4.1
+          body: |
+            ABRA FINANCES v4.1 - Real Program
+            - 14-day trial
+            - Saves to data.db
+            - Desktop icon ready
+            Download ABRA.exe below
+          files: dist/ABRA.exe
