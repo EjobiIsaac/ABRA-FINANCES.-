@@ -2,16 +2,16 @@ import sys
 import json
 import os
 from pathlib import Path
-from PySide6.QtWidgets import QApplication, QMainWindow, QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox
+from PySide6.QtWidgets import QApplication, QMainWindow, QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QFileDialog
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtCore import QUrl, QObject, Slot
 from PySide6.QtWebChannel import QWebChannel
 
 from abra.database import init_db, get_db
-from abra.license_manager import check_license, activate_key
+from abra.license_manager import check_license, activate_key, _make_key, _machine_id
 from abra.config import BASE_DIR
+from abra.excel_tools import import_clients_from_excel, export_clients_to_excel, export_template_to_excel
 
-# Find abra_ui.html - works both in PC and in EXE
 if getattr(sys, 'frozen', False):
     HTML_FILE = Path(sys._MEIPASS) / "abra_ui.html"
 else:
@@ -68,6 +68,18 @@ class Bridge(QObject):
                 cur.execute("UPDATE settings SET value=? WHERE key='biz'", (json.dumps(data["settings"]),))
                 conn.commit()
                 return json.dumps({"ok": True})
+
+            if action == "import_excel":
+                conn.close()
+                return json.dumps(import_clients_from_excel(data.get("path")))
+
+            if action == "export_excel":
+                conn.close()
+                return json.dumps(export_clients_to_excel(data.get("path")))
+
+            if action == "export_template":
+                conn.close()
+                return json.dumps(export_template_to_excel(data.get("path")))
 
             conn.close()
             return json.dumps({"ok": False, "error": "unknown action"})
